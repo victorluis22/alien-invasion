@@ -41,36 +41,37 @@ def checa_evento(pontuacao, nave, config, tela, balas,
             checa_botao_play(pontuacao, config, tela, nave, 
                              aliens, balas, status, botao_play, 
                              mouse_x, mouse_y)
-                
+
+def inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave):
+    """Inicia um novo jogo após clicar no botão play"""
+    # Restaura as velocidades iniciais do jogo
+    config.init_config_dinamica()
+    
+    # Oculta o mouse
+    pygame.mouse.set_visible(False)
+    
+    # Reinicia os dados estatísticos do jogo
+    status.reset_status()
+    status.jogo_ativo = True
+    
+    # Reinicia as imagens do painel de pontuações
+    pontuacao.prep_imagens()
+    
+    # Esvazia aliens e balas
+    aliens.empty()
+    balas.empty()
+    
+    # Centraliza a nave e cria nova frota
+    nave.centraliza()
+    cria_frota(config, tela, aliens, nave)  
+
 def checa_botao_play(pontuacao, config, tela, nave, aliens, balas, status,
                      botao_play, mouse_x, mouse_y):
     """Inicia o jogo ao clicar no botao play"""
     clique = botao_play.rect.collidepoint(mouse_x, mouse_y)
     if clique and not status.jogo_ativo:
-        # Restaura as velocidades iniciais do jogo
-        config.init_config_dinamica()
+        inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave)
         
-        # Oculta o mouse
-        pygame.mouse.set_visible(False)
-        
-        # Reinicia os dados estatísticos do jogo
-        status.reset_status()
-        status.jogo_ativo = True
-        
-        # Reinicia as imagens do painel de pontuações
-        pontuacao.prep_pontuacao()
-        pontuacao.prep_pontuacao_maxima()
-        pontuacao.prep_nivel()
-        pontuacao.prep_naves()
-        
-        # Esvazia aliens e balas
-        aliens.empty()
-        balas.empty()
-        
-        # Centraliza a nave e cria nova frota
-        nave.centraliza()
-        cria_frota(config, tela, aliens, nave)
-    
 def checa_pont_max(status, pontuacao):
     """Checa se há uma nova pontuação máxima"""
     if status.pontuacao > status.pontuacao_maxima:
@@ -121,6 +122,18 @@ def atualiza_bala(balas, aliens, config, tela, nave, status, pontuacao):
     # Checa colisões entre alienígenas e projéteis
     checa_alien_bala_colisoes(balas, aliens, config, tela, 
                               nave, status, pontuacao)
+
+def inicia_novo_nivel(balas, config, status, pontuacao, tela, aliens, nave):
+    """Inicia um novo nivel quando todos os alienígenas forem destruídos"""
+     # Se a frota toda for destruída, inicia um novo nível
+    balas.empty()
+    config.aumenta_velocidade()
+    
+    # Aumenta o nível
+    status.nivel += 1
+    pontuacao.prep_nivel()
+    
+    cria_frota(config, tela, aliens, nave)
             
 def checa_alien_bala_colisoes(balas, aliens, config, tela, 
                               nave, status, pontuacao):
@@ -136,17 +149,8 @@ def checa_alien_bala_colisoes(balas, aliens, config, tela,
         checa_pont_max(status, pontuacao)
     
     if len(aliens) == 0:
-        # Se a frota toda for destruída, inicia um novo nível
-        balas.empty()
-        config.aumenta_velocidade()
-        
-        # Aumenta o nível
-        status.nivel += 1
-        pontuacao.prep_nivel()
-        
-        cria_frota(config, tela, aliens, nave)
+       inicia_novo_nivel(balas, config, status, pontuacao, tela, aliens, nave)
             
-
 def disparar(nave, tela, balas, config):
     """"Dispara um projétil se o limite ainda não foi alcançado."""
     # Cria um novo projétil e o adiciona ao grupo de projéteis

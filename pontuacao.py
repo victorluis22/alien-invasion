@@ -15,12 +15,16 @@ class Pontuacao():
         self.texto_cor = (30, 30, 30)
         self.font = pygame.font.SysFont(None, 48)
         
-        # Prepara a imagem da pontuacao
+        # Prepara as imagens do menu de pontuacao
+        self.prep_imagens()
+        
+    def prep_imagens(self):
+        """Prepara todas as imagens do painel de pontuação"""
         self.prep_pontuacao()
         self.prep_pontuacao_maxima()
         self.prep_nivel()
         self.prep_naves()
-        
+
     def prep_pontuacao(self):
         """Tranforma a pontuacao em uma imagem renderizada"""
         pontuacao_arredondada = round(self.status.pontuacao, -1)
