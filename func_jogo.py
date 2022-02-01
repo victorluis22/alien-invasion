@@ -1,9 +1,11 @@
 import sys
 import pygame
+import pygame.mixer
+import json
 from bala import Bala
 from alien import Alien
 from time import sleep
-import json
+
 
 def grava_pontuacao_maxima(status):
     with open('pontuacao_maxima.json', 'w') as arquivo_json:
@@ -253,6 +255,7 @@ def nave_hit(config, status, tela, nave, aliens, balas, pontuacao):
     sleep(0.5)
         
     if status.naves_restantes == 0:
+        som_game_over()
         status.jogo_ativo = False
         pygame.mouse.set_visible(True)
         
@@ -278,6 +281,9 @@ def atualiza_aliens(aliens, config, nave, tela, balas, status, pontuacao):
     # Verifica se algum alinégena tocou o chão
     checa_alien_chao(config, status, tela, nave, aliens, balas, pontuacao)
     
-
+def som_game_over():
+    """Toca o som de game over do jogo"""
+    pygame.mixer.music.load('sons/game_over.mp3')
+    pygame.mixer.music.play()
     
         
