@@ -164,6 +164,7 @@ def disparar(nave, tela, balas, config):
     if len(balas) < config.bala_limite:
         nova_bala = Bala(tela, config, nave)
         balas.add(nova_bala)
+        nova_bala.play_som()
         
     
 def pega_numero_linhas(config, nave_height, alien_height):

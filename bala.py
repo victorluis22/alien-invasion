@@ -1,4 +1,5 @@
 import pygame
+import pygame.mixer
 from pygame.sprite import Sprite
 
 class Bala(Sprite):
@@ -23,6 +24,7 @@ class Bala(Sprite):
         
         self.cor = config.bala_cor
         self.velocidade = config.bala_velocidade
+        self.som = pygame.mixer.music.load('sons/nave_bala.mp3')
         
     def update(self):
         """Move o projétil para cima na tela."""
@@ -31,8 +33,12 @@ class Bala(Sprite):
         
         # Atualiza a posição de rect
         self.rect.y = self.y
+
+    def play_som(self):
+        """Emite o som de bala laser"""
+        pygame.mixer.music.play()
         
     def drawme(self):
         pygame.draw.rect(self.tela, self.cor, self.rect)
         
-    
+
