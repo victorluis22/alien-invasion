@@ -1,5 +1,7 @@
 import pygame
+import pygame.mixer
 from pygame.sprite import Sprite
+
 
 
 class Nave(Sprite):
@@ -18,8 +20,7 @@ class Nave(Sprite):
         self.image = pygame.image.load('imagens/ship.bmp')
         self.rect = self.image.get_rect()
         self.tela_rect = self.tela.get_rect()
-        
-        
+
         # Inicializa nova espaçonave na parte inferior central da tela
         self.rect.centerx = self.tela_rect.centerx
         self.rect.bottom = self.tela_rect.bottom
@@ -29,8 +30,7 @@ class Nave(Sprite):
         
         # Flag de movimento
         self.movendo_direita = False
-        self.movendo_esquerda = False   
-        
+        self.movendo_esquerda = False 
 
     def atualiza(self):
         """
@@ -46,7 +46,11 @@ class Nave(Sprite):
         # Atualiza o retângulo com base nos self.center, que permite float
         self.rect.centerx = self.center
         
-        
+    def nave_hit_som(self):
+        """Emite o som de nave atingida"""
+        pygame.mixer.music.load('sons/nave_hit.mp3')
+        pygame.mixer.music.play()
+
     def blitme(self):
         """Desenha a nave na posição inicial"""
         self.tela.blit(self.image, self.rect)

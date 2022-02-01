@@ -16,7 +16,8 @@ def checa_evento_KEYDOWN(nave, event, tela, balas, config, status):
     elif event.key == pygame.K_LEFT:
         nave.movendo_esquerda = True
     elif event.key == pygame.K_SPACE:
-        disparar(nave, tela, balas, config)
+        if status.jogo_ativo:
+            disparar(nave, tela, balas, config)
     elif event.key == pygame.K_q:
         grava_pontuacao_maxima(status)
         sys.exit()
@@ -163,10 +164,9 @@ def disparar(nave, tela, balas, config):
     # Cria um novo projétil e o adiciona ao grupo de projéteis
     if len(balas) < config.bala_limite:
         nova_bala = Bala(tela, config, nave)
+        nova_bala.dispara_som()
         balas.add(nova_bala)
-        nova_bala.play_som()
         
-    
 def pega_numero_linhas(config, nave_height, alien_height):
     """
     Determina o número de linhas de aliens que cabem na tela
@@ -232,6 +232,9 @@ def nave_hit(config, status, tela, nave, aliens, balas, pontuacao):
     """
     Responde quando a nave for atingida por um alienígena
     """
+    # Emite o som de nave atingida
+    nave.nave_hit_som()
+
     # Decrementa naves_restantes
     status.naves_restantes -= 1
     
