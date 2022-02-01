@@ -11,7 +11,6 @@ def run_game():
     # Inicializa o jogo
     pygame.init()
 
-    
     # Cria um objeto para administrar as configurações
     # Cria um objeto para administrar a tela
     # Determina o nome do programa

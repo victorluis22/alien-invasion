@@ -3,8 +3,13 @@ import pygame
 from bala import Bala
 from alien import Alien
 from time import sleep
+import json
 
-def checa_evento_KEYDOWN(nave, event, tela, balas, config):
+def grava_pontuacao_maxima(status):
+    with open('pontuacao_maxima.json', 'w') as arquivo_json:
+        json.dump(str(status.pontuacao_maxima), arquivo_json)
+
+def checa_evento_KEYDOWN(nave, event, tela, balas, config, status):
     """Checa eventos de keydown"""
     if event.key == pygame.K_RIGHT:
         nave.movendo_direita = True
@@ -13,6 +18,7 @@ def checa_evento_KEYDOWN(nave, event, tela, balas, config):
     elif event.key == pygame.K_SPACE:
         disparar(nave, tela, balas, config)
     elif event.key == pygame.K_q:
+        grava_pontuacao_maxima(status)
         sys.exit()
             
 def checa_evento_KEYUP(nave, event):
@@ -27,10 +33,11 @@ def checa_evento(pontuacao, nave, config, tela, balas,
     """Laço que checa eventos durante o jogo"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
+            grava_pontuacao_maxima(status)
             sys.exit()
         
         elif event.type == pygame.KEYDOWN:
-            checa_evento_KEYDOWN(nave, event, tela, balas, config)
+            checa_evento_KEYDOWN(nave, event, tela, balas, config, status)
             
         elif event.type == pygame.KEYUP:
             checa_evento_KEYUP(nave, event)
