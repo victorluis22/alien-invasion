@@ -6,6 +6,7 @@ from nave import Nave
 from jogo_status import JogoStatus
 from botao import Botao
 from pontuacao import Pontuacao
+from som import Som
 
 def run_game():
     # Inicializa o jogo
@@ -25,6 +26,7 @@ def run_game():
     status = JogoStatus(config)
     botao_play = Botao(tela, config, 'Jogar')
     pontuacao = Pontuacao(tela, config, status)
+    som = Som()
     
     # Cria a frota de alienígenas
     fj.cria_frota(config, tela, aliens, nave)
@@ -33,9 +35,10 @@ def run_game():
     while True:
         #Observa eventos de teclado e de mouse
         fj.checa_evento(pontuacao, nave, config, tela,
-                        balas, botao_play, status, aliens) 
+                        balas, botao_play, status, aliens, som) 
         
         if status.jogo_ativo:
+
             # Atualiza a posição da nave
             nave.atualiza()
             
@@ -44,12 +47,12 @@ def run_game():
                              nave, status, pontuacao)
             
             # Atualiza a posição dos alienígenas
-            fj.atualiza_aliens(aliens, config, nave, 
-                               tela, balas, status, pontuacao)
+            fj.atualiza_aliens(aliens, config, nave, tela, 
+                               balas, status, pontuacao, som)
             
         # Atualiza a tela
         fj.atualiza_tela(nave, config, tela, balas, 
-                         aliens, botao_play, status, pontuacao)
+                         aliens, botao_play, status, pontuacao, som)
             
         
         

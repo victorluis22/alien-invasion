@@ -1,5 +1,4 @@
 import pygame
-import pygame.mixer
 from pygame.sprite import Sprite
 
 
@@ -32,6 +31,9 @@ class Nave(Sprite):
         self.movendo_direita = False
         self.movendo_esquerda = False 
 
+        # Som de nave atingida
+        self.nave_hit = 2
+
     def atualiza(self):
         """
         Atualiza a posição da nave de acordo com a flag de movimento
@@ -45,11 +47,6 @@ class Nave(Sprite):
         
         # Atualiza o retângulo com base nos self.center, que permite float
         self.rect.centerx = self.center
-        
-    def nave_hit_som(self):
-        """Emite o som de nave atingida"""
-        pygame.mixer.music.load('sons/nave_hit.mp3')
-        pygame.mixer.music.play()
 
     def blitme(self):
         """Desenha a nave na posição inicial"""

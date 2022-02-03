@@ -11,7 +11,7 @@ def grava_pontuacao_maxima(status):
     with open('pontuacao_maxima.json', 'w') as arquivo_json:
         json.dump(str(status.pontuacao_maxima), arquivo_json)
 
-def checa_evento_KEYDOWN(nave, event, tela, balas, config, status):
+def checa_evento_KEYDOWN(nave, event, tela, balas, config, status, som):
     """Checa eventos de keydown"""
     if event.key == pygame.K_RIGHT:
         nave.movendo_direita = True
@@ -19,7 +19,7 @@ def checa_evento_KEYDOWN(nave, event, tela, balas, config, status):
         nave.movendo_esquerda = True
     elif event.key == pygame.K_SPACE:
         if status.jogo_ativo:
-            disparar(nave, tela, balas, config)
+            disparar(nave, tela, balas, config, som)
     elif event.key == pygame.K_q:
         grava_pontuacao_maxima(status)
         sys.exit()
@@ -32,7 +32,7 @@ def checa_evento_KEYUP(nave, event):
         nave.movendo_esquerda = False
             
 def checa_evento(pontuacao, nave, config, tela, balas, 
-                 botao_play, status, aliens):
+                 botao_play, status, aliens, som):
     """Laço que checa eventos durante o jogo"""
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
@@ -40,7 +40,7 @@ def checa_evento(pontuacao, nave, config, tela, balas,
             sys.exit()
         
         elif event.type == pygame.KEYDOWN:
-            checa_evento_KEYDOWN(nave, event, tela, balas, config, status)
+            checa_evento_KEYDOWN(nave, event, tela, balas, config, status, som)
             
         elif event.type == pygame.KEYUP:
             checa_evento_KEYUP(nave, event)
@@ -50,10 +50,13 @@ def checa_evento(pontuacao, nave, config, tela, balas,
             
             checa_botao_play(pontuacao, config, tela, nave, 
                              aliens, balas, status, botao_play, 
-                             mouse_x, mouse_y)
+                             mouse_x, mouse_y, som)
 
-def inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave):
+def inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave, som):
     """Inicia um novo jogo após clicar no botão play"""
+    # Toca a música de fundo do jogo
+    som.play_music(0)    
+
     # Restaura as velocidades iniciais do jogo
     config.init_config_dinamica()
     
@@ -73,14 +76,14 @@ def inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave):
     
     # Centraliza a nave e cria nova frota
     nave.centraliza()
-    cria_frota(config, tela, aliens, nave)  
+    cria_frota(config, tela, aliens, nave) 
 
 def checa_botao_play(pontuacao, config, tela, nave, aliens, balas, status,
-                     botao_play, mouse_x, mouse_y):
+                     botao_play, mouse_x, mouse_y, som):
     """Inicia o jogo ao clicar no botao play"""
     clique = botao_play.rect.collidepoint(mouse_x, mouse_y)
     if clique and not status.jogo_ativo:
-        inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave)
+        inicia_jogo(config, tela, status, pontuacao, aliens, balas, nave, som)
         
 def checa_pont_max(status, pontuacao):
     """Checa se há uma nova pontuação máxima"""
@@ -89,8 +92,9 @@ def checa_pont_max(status, pontuacao):
         pontuacao.prep_pontuacao_maxima()
         
 def atualiza_tela(nave, config, tela, balas, 
-                  aliens, botao_play, status, pontuacao):
+                  aliens, botao_play, status, pontuacao, som):
     """Redesenha a tela a cada passagem pelo laço"""
+
     # Preenche a cor de fundo da tela
     tela.fill(config.background_cor)
     
@@ -161,12 +165,12 @@ def checa_alien_bala_colisoes(balas, aliens, config, tela,
     if len(aliens) == 0:
        inicia_novo_nivel(balas, config, status, pontuacao, tela, aliens, nave)
             
-def disparar(nave, tela, balas, config):
+def disparar(nave, tela, balas, config, som):
     """"Dispara um projétil se o limite ainda não foi alcançado."""
     # Cria um novo projétil e o adiciona ao grupo de projéteis
     if len(balas) < config.bala_limite:
         nova_bala = Bala(tela, config, nave)
-        nova_bala.dispara_som()
+        som.play_sfx(nova_bala.disparo)
         balas.add(nova_bala)
         
 def pega_numero_linhas(config, nave_height, alien_height):
@@ -230,12 +234,12 @@ def checa_frota_canto(aliens, config):
             muda_direcao_frota(aliens, config)
             break
         
-def nave_hit(config, status, tela, nave, aliens, balas, pontuacao):
+def nave_hit(config, status, tela, nave, aliens, balas, pontuacao, som):
     """
     Responde quando a nave for atingida por um alienígena
     """
     # Emite o som de nave atingida
-    nave.nave_hit_som()
+    som.play_sfx(nave.nave_hit)
 
     # Decrementa naves_restantes
     status.naves_restantes -= 1
@@ -255,35 +259,35 @@ def nave_hit(config, status, tela, nave, aliens, balas, pontuacao):
     sleep(0.5)
         
     if status.naves_restantes == 0:
-        som_game_over()
+        # Para a musica de fundo do jogo
+        som.stop_music() 
+
+        # Toca o sfx de game over
+        som.play_sfx(1)
+
         status.jogo_ativo = False
         pygame.mouse.set_visible(True)
         
 
-def checa_alien_chao(config, status, tela, nave, aliens, balas, pontuacao):
+def checa_alien_chao(config, status, tela, nave, aliens, balas, pontuacao, som):
     """Verifica se o alien tocou o chão"""
     tela_rect = tela.get_rect()
     
     for alien in aliens.sprites():
         if alien.rect.bottom >= tela_rect.bottom:
-            nave_hit(config, status, tela, nave, aliens, balas, pontuacao)
+            nave_hit(config, status, tela, nave, aliens, balas, pontuacao, som)
             break
     
-def atualiza_aliens(aliens, config, nave, tela, balas, status, pontuacao):
+def atualiza_aliens(aliens, config, nave, tela, balas, status, pontuacao, som):
     """"Atualiza a posição dos aliens"""
     checa_frota_canto(aliens, config)
     aliens.update()
     
     # Verifica se houve colisões entre alienígenas e a nave
     if pygame.sprite.spritecollideany(nave, aliens):
-        nave_hit(config, status, tela, nave, aliens, balas, pontuacao)
+        nave_hit(config, status, tela, nave, aliens, balas, pontuacao, som)
         
     # Verifica se algum alinégena tocou o chão
-    checa_alien_chao(config, status, tela, nave, aliens, balas, pontuacao)
+    checa_alien_chao(config, status, tela, nave, aliens, balas, pontuacao, som)
     
-def som_game_over():
-    """Toca o som de game over do jogo"""
-    pygame.mixer.music.load('sons/game_over.mp3')
-    pygame.mixer.music.play()
-    
-        
+     
